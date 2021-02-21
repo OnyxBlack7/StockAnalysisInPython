@@ -1,13 +1,13 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import datetime
-from mpl_finance import candlestick_ohlc
-#from mplfinance.original_flavor import candlestick_ohlc
+# from mpl_finance import candlestick_ohlc
+from mplfinance.original_flavor import candlestick_ohlc
 import matplotlib.dates as mdates
 from Investar import Analyzer
 
 mk = Analyzer.MarketDB()
-df = mk.get_daily_price('엔씨소프트', '2017-01-01')
+df = mk.get_daily_price('엔씨소프트', '2019-01-01')
 
 ema60 = df.close.ewm(span=60).mean()
 ema130 = df.close.ewm(span=130).mean()
@@ -34,12 +34,10 @@ candlestick_ohlc(p1, ohlc.values, width=.6, colorup='red', colordown='blue')
 p1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
 plt.plot(df.number, df['ema130'], color='c', label='EMA130')
 for i in range(1, len(df.close)):
-    if df.ema130.values[i-1] < df.ema130.values[i] and \
-        df.slow_d.values[i-1] >= 20 and df.slow_d.values[i] < 20:
-        plt.plot(df.number.values[i], 250000, 'r^') 
-    elif df.ema130.values[i-1] > df.ema130.values[i] and \        
-        df.slow_d.values[i-1] <= 80 and df.slow_d.values[i] > 80:
-        plt.plot(df.number.values[i], 250000, 'bv') 
+    if df.ema130.values[i-1] < df.ema130.values[i] and df.slow_d.values[i-1] >= 20 and df.slow_d.values[i] < 20:
+        plt.plot(df.number.values[i], 40000, 'r^')
+    elif df.ema130.values[i-1] > df.ema130.values[i] and df.slow_d.values[i-1] <= 80 and df.slow_d.values[i] > 80:
+        plt.plot(df.number.values[i], 40000, 'bv')
 plt.legend(loc='best')
 
 p2 = plt.subplot(3, 1, 2)

@@ -29,7 +29,7 @@ for _ in range(20000):
     port_ret.append(returns) 
     port_risk.append(risk) 
     port_weights.append(weights)
-    sharpe_ratio.append(returns/risk)  # ①
+    sharpe_ratio.append(returns/risk)  # (포트폴리오 예상 수익률 - 무위험수익률)/수익률 표준편차
 
 portfolio = {'Returns': port_ret, 'Risk': port_risk, 'Sharpe': sharpe_ratio}
 for i, s in enumerate(stocks): 

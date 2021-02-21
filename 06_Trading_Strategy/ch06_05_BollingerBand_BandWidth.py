@@ -1,6 +1,11 @@
 import matplotlib.pyplot as plt
 from Investar import Analyzer
 
+# squeeze: 변동성이 극히 낮은 수준까지 떨어져 곧이어 변동성 증가가 발생할 것으로 예상되는 상황
+# 밴드폭이 6개월 저점을 기록하는 것을 보고 스퀴즈를 파악할 수 있다.
+# 추세의 시작과 끝을 포착
+# 스퀴즈 이후 변동성이 커지면서 밴드폭 상승 후
+# 밴드폭 수치의 변동이 없거나 줄어들면서 볼린저 밴드가 추세 반대쪽으로 방향을 바꾸면 추세가 끝났다고 본다.
 mk = Analyzer.MarketDB()
 df = mk.get_daily_price('NAVER', '2019-01-02')
 df['MA20'] = df['close'].rolling(window=20).mean()

@@ -1,3 +1,6 @@
+# 상승 추세에 매수, 하락 추세에 매도
+# 매수: 상단 밴드에 접근 %b > 0.8, 현금흐름지표(MFI) > 80
+# 매도: 하단 밴드에 접근 %b < 0.2, 현금흐름지표(MFI) < 20
 import matplotlib.pyplot as plt
 from Investar import Analyzer
 
@@ -9,9 +12,9 @@ df['stddev'] = df['close'].rolling(window=20).std()
 df['upper'] = df['MA20'] + (df['stddev'] * 2)
 df['lower'] = df['MA20'] - (df['stddev'] * 2)
 df['PB'] = (df['close'] - df['lower']) / (df['upper'] - df['lower'])
-df['TP'] = (df['high'] + df['low'] + df['close']) / 3
-df['PMF'] = 0
-df['NMF'] = 0
+df['TP'] = (df['high'] + df['low'] + df['close']) / 3   # 중심가격 Typical Price
+df['PMF'] = 0   # Positive Money Flow, 중심 가격이 전일보다 상승한 날들의 현금 흐름의 합
+df['NMF'] = 0   # Negative Money Flow, 중심 가격이 전일보다 하락한 날들의 현금 흐름의 합
 for i in range(len(df.close)-1):
     if df.TP.values[i] < df.TP.values[i+1]:
         df.PMF.values[i+1] = df.TP.values[i+1] * df.volume.values[i+1]
@@ -19,8 +22,7 @@ for i in range(len(df.close)-1):
     else:
         df.NMF.values[i+1] = df.TP.values[i+1] * df.volume.values[i+1]
         df.PMF.values[i+1] = 0
-df['MFR'] = (df.PMF.rolling(window=10).sum() /
-    df.NMF.rolling(window=10).sum())
+df['MFR'] = (df.PMF.rolling(window=10).sum() / df.NMF.rolling(window=10).sum()) # Money Flow Ratio
 df['MFI10'] = 100 - 100 / (1 + df['MFR'])
 df = df[19:]
 

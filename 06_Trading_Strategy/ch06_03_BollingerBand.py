@@ -3,12 +3,14 @@ from Investar import Analyzer
 
 mk = Analyzer.MarketDB()
 df = mk.get_daily_price('NAVER', '2019-01-02')
-  
-df['MA20'] = df['close'].rolling(window=20).mean()  # ①
-df['stddev'] = df['close'].rolling(window=20).std() # ②
-df['upper'] = df['MA20'] + (df['stddev'] * 2)   # ③
-df['lower'] = df['MA20'] - (df['stddev'] * 2)   # ④
-df = df[19:]  # ⑤
+
+df['MA20'] = df['close'].rolling(window=20).mean()      # 20일 종가 평균
+df['stddev'] = df['close'].rolling(window=20).std()     # 20일 종가의 표준편차
+
+# 95.4% within 2 sigma
+df['upper'] = df['MA20'] + (df['stddev'] * 2)           # 볼린저밴드 상단
+df['lower'] = df['MA20'] - (df['stddev'] * 2)           # 볼린저밴드 하단
+df = df[19:]                                            # 19행까지는 NaN이므로 20번째 행부터 사용
 
 plt.figure(figsize=(9, 5))
 plt.plot(df.index, df['close'], color='#0000ff', label='Close')    # ⑥

@@ -3,14 +3,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from Investar import Analyzer
 
+
 mk = Analyzer.MarketDB()
 stocks = ['삼성전자', 'SK하이닉스', '현대자동차', 'NAVER']
 df = pd.DataFrame()
 for s in stocks:
     df[s] = mk.get_daily_price(s, '2016-01-04', '2018-04-27')['close']
-  
+
 daily_ret = df.pct_change() 
-annual_ret = daily_ret.mean() * 252
+annual_ret = daily_ret.mean() * 252     # 일간 '변화율'의 평균. 실제 수익률은 복리로 계산되기 때문에 다름.
 daily_cov = daily_ret.cov() 
 annual_cov = daily_cov * 252
 
@@ -20,7 +21,7 @@ port_weights = []
 
 for _ in range(20000): 
     weights = np.random.random(len(stocks)) 
-    weights /= np.sum(weights) 
+    weights /= np.sum(weights)          # 총 합이 1이 되도록
 
     returns = np.dot(weights, annual_ret) 
     risk = np.sqrt(np.dot(weights.T, np.dot(annual_cov, weights))) 

@@ -117,6 +117,33 @@ class DBUpdater:
             return None
         return df
 
+    def read_naver_fromChart(code, days_count):
+        """네이버에서 주식 시세를 읽어서 데이터프레임으로 반환"""
+        """수정종가 반영"""
+        try:
+            url = f"https://fchart.stock.naver.com/sise.nhn?symbol={code}&timeframe=day&count={days_count}&requestType=0"
+            get_result = requests.get(url)
+            html = BeautifulSoup(get_result.content, "html.parser")
+
+            # information
+            items = html.select('item')
+            columns = ['Date', 'Open', 'High', 'Low', 'Close', 'Volume']
+            df = pd.DataFrame([], columns=columns, index=range(len(items)))
+
+            for i in range(len(items)):
+                df.iloc[i] = str(items[i]['data']).split('|')
+
+            df[['Close', 'Open', 'High', 'Low', 'Volume']] = df[['Close', 'Open', 'High', 'Low', 'Volume']].astype(int)
+            df['Diff'] = df['Close'].diff().fillna(0).astype(int)
+            df['Date'] = pd.to_datetime(df['Date'])
+            # 칼럼 순서 변경
+            df = df[['Date', 'Open', 'High', 'Low', 'Close', 'Diff', 'Volume']]
+
+        except Exception as e:
+            print('Exception occured :', str(e))
+            return None
+        return df
+
     def replace_into_db(self, df, num, code, company):
         """네이버에서 읽어온 주식 시세를 DB에 REPLACE"""
         with self.conn.cursor() as curs:
@@ -135,7 +162,8 @@ class DBUpdater:
         """KRX 상장법인의 주식 시세를 네이버로부터 읽어서 DB에 업데이트"""  
         for idx, code in enumerate(self.codes):
             # read_naver() 메서드를 이용하여 종목코드에 대한 일별 시세 데이터프레임을 구함
-            df = self.read_naver(code, self.codes[code], pages_to_fetch)
+            # df = self.read_naver(code, self.codes[code], pages_to_fetch)
+            df = self.read_naver_fromChart(code, pages_to_fetch)
             if df is None:
                 continue
             # 일별 시세 데이터프레임이 구해지면 replace_into_db() 메서드로 DB에 저장
@@ -151,7 +179,7 @@ class DBUpdater:
                 pages_to_fetch = config['pages_to_fetch']
         except FileNotFoundError:
             with open('config.json', 'w') as out_file:
-                pages_to_fetch = 100 
+                pages_to_fetch = 10000
                 config = {'pages_to_fetch': 1}
                 json.dump(config, out_file)
         self.update_daily_price(pages_to_fetch)

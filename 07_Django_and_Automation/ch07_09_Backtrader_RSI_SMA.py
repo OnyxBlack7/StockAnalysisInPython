@@ -9,10 +9,10 @@ class MyStrategy(bt.Strategy):
         self.buycomm = None        
         self.rsi = bt.indicators.RSI_SMA(self.data.close, period=21)
 
-    def notify_order(self, order):  # ①
+    def notify_order(self, order):  # 주문 상태에 변화가 있을 때마다 자동으로 실행
         if order.status in [order.Submitted, order.Accepted]:
             return
-        if order.status in [order.Completed]:  # ② 
+        if order.status in [order.Completed]:  # 주문 상태가 완료이면 매수/매도 확인하여 상세 주문 정보 출력
             if order.isbuy():
                 self.log(f'BUY  : 주가 {order.executed.price:,.0f}, '
                     f'수량 {order.executed.size:,.0f}, '
@@ -52,8 +52,8 @@ data = bt.feeds.YahooFinanceData(dataname='036570.KS',
     fromdate=datetime(2017, 1, 1), todate=datetime(2019, 12, 1))
 cerebro.adddata(data)
 cerebro.broker.setcash(10000000)
-cerebro.broker.setcommission(commission=0.0014)  # ④
-cerebro.addsizer(bt.sizers.PercentSizer, percents=90)  # ⑤
+cerebro.broker.setcommission(commission=0.0014)  # 매도시 증권거래세 0.25%. 매수/매도시 수수료 약 0.015% = 약 0.28%, 0.14%씩 두번으로 설정
+cerebro.addsizer(bt.sizers.PercentSizer, percents=90)  # 매매 주문 적용할 주식 수: PercentSizer를 사용하면 포트폴리오 자산에 대한 퍼센트로 지정
 
 print(f'Initial Portfolio Value : {cerebro.broker.getvalue():,.0f} KRW')
 cerebro.run()
